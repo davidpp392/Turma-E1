@@ -1,8 +1,8 @@
-import { linkSupabaseSession, unlinkSupabaseSession } from '@/lib/supabase/bridge';
 import { getFirebaseAuth } from '@/lib/firebase/client';
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
+  sendPasswordResetEmail,
   signOut as firebaseSignOut,
   updatePassword,
   type User,
@@ -11,20 +11,22 @@ import {
 export async function signIn(email: string, password: string) {
   const auth = getFirebaseAuth();
   const credential = await signInWithEmailAndPassword(auth, email, password);
-  await linkSupabaseSession(credential.user);
   return credential.user;
 }
 
 export async function signUp(email: string, password: string) {
   const auth = getFirebaseAuth();
   const credential = await createUserWithEmailAndPassword(auth, email, password);
-  await linkSupabaseSession(credential.user);
   return credential.user;
 }
 
 export async function signOut() {
   await firebaseSignOut(getFirebaseAuth());
-  await unlinkSupabaseSession();
+}
+
+export async function sendPasswordReset(email: string) {
+  const auth = getFirebaseAuth();
+  await sendPasswordResetEmail(auth, email);
 }
 
 export function getCurrentUser(): User | null {
